@@ -31,9 +31,9 @@ private:
   Event::Handle<TClonesArray> h_jets;
   Event::Handle<baconhep::TEventInfo> h_eventInfo;
 
-  std::unique_ptr<Hists> h_nocuts, h_sel, h_dijet;
+  std::unique_ptr<Hists> h_nocuts, h_sel, h_dijet, h_test;
   std::vector<double> eta_range;
-  std::vector<JECAnalysisHists> h_eta_bins;
+  std::vector<JECAnalysisHists> h_eta_bins_alpha05, h_eta_bins;
 
   Selection sel;
 
@@ -50,7 +50,6 @@ TestModule::TestModule(Context & ctx) :
   h_dijet.reset(new JECAnalysisHists(ctx,"diJet"));
   h_sel.reset(new JECAnalysisHists(ctx,"Selection"));
 
-
   eta_range = {0, 0.261, 0.522, 0.763, 0.957, 1.131, 1.305, 1.479, 1.93, 2.322, 2.411, 2.5, 2.853, 2.964, 3.139, 3.489, 5.191};
   // int size = sizeof(eta_range)/sizeof(double); // to get size of string object
   // eta_range.size() // to get size of vector
@@ -60,6 +59,9 @@ TestModule::TestModule(Context & ctx) :
     char buffer [50];
     sprintf (buffer, "%5.3f", eta_range[i]);
     range_name.push_back(buffer);
+  }
+  for( unsigned int i=0; i < eta_range.size()-1; ++i ){
+    h_eta_bins_alpha05.push_back(JECAnalysisHists(ctx,(std::string)("alpha05_eta_"+range_name[i]+"_"+range_name[i+1])));
   }
   for( unsigned int i=0; i < eta_range.size()-1; ++i ){
     h_eta_bins.push_back(JECAnalysisHists(ctx,(std::string)("eta_"+range_name[i]+"_"+range_name[i+1])));
@@ -72,19 +74,6 @@ TestModule::TestModule(Context & ctx) :
 bool TestModule::process(Event & event) {
 
   sel.SetEvent(event);
-
-  if(!sel.DiJet()) return false;
-
-  h_nocuts->fill(event);
-
-  if(!sel.DiJetAdvanced()) return false;
-
-  h_dijet->fill(event);
-
-  if(!sel.Trigger()) return false;
-
-  // fill histos after dijet event selection
-  h_sel->fill(event);
 
   const TClonesArray & js = event.get(h_jets);
 
@@ -110,6 +99,28 @@ bool TestModule::process(Event & event) {
         probejet_eta = jet1->eta;
     }
   }
+
+  if(!sel.DiJet()) return false;
+
+  h_nocuts->fill(event);
+
+  if(!sel.DiJetAdvancedAlpha05()) return false;
+
+  for( unsigned int i=0; i < eta_range.size()-1; ++i ){
+    if ((fabs(probejet_eta)>=eta_range[i])&&(fabs(probejet_eta)<eta_range[i+1])) h_eta_bins_alpha05[i].fill(event, ran);
+
+  }
+
+  if(!sel.DiJetAdvanced()) return false;
+
+  h_dijet->fill(event);
+
+  if(!sel.Trigger()) return false;
+
+  // fill histos after dijet event selection
+  h_sel->fill(event);
+
+
 
   for( unsigned int i=0; i < eta_range.size()-1; ++i ){
     if ((fabs(probejet_eta)>=eta_range[i])&&(fabs(probejet_eta)<eta_range[i+1])) h_eta_bins[i].fill(event, ran);

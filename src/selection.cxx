@@ -94,7 +94,7 @@ bool Selection::DiJet()
 
   return false;
 }
-bool Selection::DiJetAdvanced()
+bool Selection::DiJetAdvancedAlpha05()
 {
   assert(event);
 
@@ -121,6 +121,31 @@ bool Selection::DiJetAdvanced()
   // |asymm| < 0.7
   if ((fabs(jet2->pt - jet1->pt) / (jet2->pt + jet1->pt)) > 0.7) return false;
 
+  // p_t,rel < 0.5
+  if (njets>2){
+    baconhep::TJet* jet3 = (baconhep::TJet*)js[2];
+    if ((2*(jet3->pt))/(jet1->pt + jet2->pt) > 0.5) return false;
+  }
+
+ return true;
+}
+
+bool Selection::DiJetAdvanced()
+{
+  assert(event);
+
+  const TClonesArray & js = event->get(h_jets);
+
+  const baconhep::TJet * jet = dynamic_cast<const baconhep::TJet*>(js[0]);
+  assert(jet);
+
+  int njets = js.GetEntries();
+
+  // njets >= 2
+  if (njets<2) return false;
+  baconhep::TJet* jet1 = (baconhep::TJet*)js[0];
+  baconhep::TJet* jet2 = (baconhep::TJet*)js[1];
+
   // p_t,rel < 0.2
   if (njets>2){
     baconhep::TJet* jet3 = (baconhep::TJet*)js[2];
@@ -129,6 +154,7 @@ bool Selection::DiJetAdvanced()
 
  return true;
 }
+
 bool Selection::FullSelection()
 {
     return Trigger()&&DiJet()&&DiJetAdvanced();

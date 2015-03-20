@@ -6,6 +6,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include <iostream>
+#include "UHH2/core/include/LorentzVector.h"
 
 using namespace std;
 using namespace uhh2;
@@ -51,6 +52,12 @@ JECAnalysisHists::JECAnalysisHists(Context & ctx, const string & dirname): Hists
   book<TH1F>("pt_ave_hltDiPFJetAve400","p_{T} ave400 jet",500,0,500);
 
 
+  book<TH1F>("met","missing ET",100,0,1000);
+  book<TH1F>("R_mpf","R_{MPF}",200,0,2);
+  book<TH1F>("R_mpf_05_15","R_{MPF} for #alpha 0.05-0.15",200,0,2);
+  book<TH1F>("R_mpf_15_25","R_{MPF} for #alpha 0.15-0.25",200,0,2);
+  book<TH1F>("R_mpf_25_35","R_{MPF} for #alpha 0.25-0.35",200,0,2);
+  book<TH1F>("R_mpf_35_45","R_{MPF} for #alpha 0.35-0.45",200,0,2);
 
   h_jets = ctx.get_handle<TClonesArray>("Jet04");
   h_eventInfo = ctx.get_handle<baconhep::TEventInfo>("Info");
@@ -95,8 +102,15 @@ void JECAnalysisHists::fill(const uhh2::Event & ev, const int rand){
   hist("eta_1")->Fill(jet1->eta, weight);
 
 
+  hist("met")->Fill(eventInfo->pfMET, weight);
+
+
   double barreljet = 0.0;
+  double barreljet_eta = 0.0;
+  double barreljet_phi = 0.0;
+  double barreljet_mass = 0.0;
   double probejet = 0.0;
+  LorentzVector barreljet_v4(0,0,0,0);
   TString FileName[7] = {"pt_ave_hltDiPFJetAve40","pt_ave_hltDiPFJetAve80", "pt_ave_hltDiPFJetAve140", "pt_ave_hltDiPFJetAve200", "pt_ave_hltDiPFJetAve260", "pt_ave_hltDiPFJetAve320","pt_ave_hltDiPFJetAve400"};
 
   double pt_ave = (jet1->pt + jet2->pt)/2;
@@ -106,6 +120,9 @@ void JECAnalysisHists::fill(const uhh2::Event & ev, const int rand){
     if(numb==1){
         if(fabs(jet1->eta)<1.3){
         barreljet += jet1->pt;
+	barreljet_eta += jet1->eta;
+	barreljet_phi += jet1->phi;
+	barreljet_mass += jet1->mass;
         probejet += jet2->pt;
         hist("pt_barrel")->Fill(jet1->pt, weight);
         hist("pt_probe")->Fill(jet2->pt, weight);
@@ -122,6 +139,9 @@ void JECAnalysisHists::fill(const uhh2::Event & ev, const int rand){
     if(numb==2){
         if(fabs(jet2->eta)<1.3){
         barreljet += jet2->pt;
+	barreljet_eta += jet2->eta;
+	barreljet_phi += jet2->phi;
+	barreljet_mass += jet2->mass;
         probejet += jet1->pt;
         hist("pt_barrel")->Fill(jet2->pt, weight);
         hist("pt_probe")->Fill(jet1->pt, weight);
@@ -137,6 +157,9 @@ void JECAnalysisHists::fill(const uhh2::Event & ev, const int rand){
   } else if ((fabs(jet1->eta)<1.3)||(fabs(jet2->eta)<1.3)){
     if(fabs(jet1->eta)<1.3){
         barreljet += jet1->pt;
+	barreljet_eta += jet1->eta;
+	barreljet_phi += jet1->phi;
+	barreljet_mass += jet1->mass;
         probejet += jet2->pt;
         hist("pt_barrel")->Fill(jet1->pt, weight);
         hist("pt_probe")->Fill(jet2->pt, weight);
@@ -151,6 +174,9 @@ void JECAnalysisHists::fill(const uhh2::Event & ev, const int rand){
     }
     if(fabs(jet2->eta)<1.3){
         barreljet += jet2->pt;
+	barreljet_eta += jet2->eta;
+	barreljet_phi += jet2->phi;
+	barreljet_mass += jet2->mass;
         probejet += jet1->pt;
         hist("pt_barrel")->Fill(jet2->pt, weight);
         hist("pt_probe")->Fill(jet1->pt, weight);
@@ -164,7 +190,28 @@ void JECAnalysisHists::fill(const uhh2::Event & ev, const int rand){
     }
   }
 
- 
+  barreljet_v4.SetPt(barreljet);
+  barreljet_v4.SetEta(barreljet_eta);
+  barreljet_v4.SetPhi(barreljet_phi);
+  barreljet_v4.SetE(sqrt(pow(barreljet,2)+pow(barreljet_mass,2)));
+  //barreljet_v4.SetM(barreljet_mass);
+
+  LorentzVector met(0,0,0,0);
+  met.SetPt(eventInfo->pfMET);
+  met.SetPhi(eventInfo->pfMETphi);
+
+
+  hist("R_mpf")->Fill(1+(cos(met.phi()-barreljet_v4.phi())* met.pt()/barreljet_v4.pt()  ), weight);
+
+  baconhep::TJet* jet3 = (baconhep::TJet*)js[2];
+  if (njets>2){
+    if (jet3->pt/pt_ave > 0.05 && jet3->pt/pt_ave <= 0.15) hist("R_mpf_05_15")->Fill(1+(cos(met.phi()-barreljet_v4.phi())* met.pt()/barreljet_v4.pt()  ), weight);
+    if (jet3->pt/pt_ave > 0.15 && jet3->pt/pt_ave <= 0.25) hist("R_mpf_15_25")->Fill(1+(cos(met.phi()-barreljet_v4.phi())* met.pt()/barreljet_v4.pt()  ), weight);
+    if (jet3->pt/pt_ave > 0.25 && jet3->pt/pt_ave <= 0.35) hist("R_mpf_25_35")->Fill(1+(cos(met.phi()-barreljet_v4.phi())* met.pt()/barreljet_v4.pt()  ), weight);
+    if (jet3->pt/pt_ave > 0.35 && jet3->pt/pt_ave <= 0.45) hist("R_mpf_35_45")->Fill(1+(cos(met.phi()-barreljet_v4.phi())* met.pt()/barreljet_v4.pt()  ), weight);
+  }
+
+
 
   hist("pt_2")->Fill(jet2->pt, weight);
   hist("eta_2")->Fill(jet2->eta, weight);
@@ -180,7 +227,7 @@ void JECAnalysisHists::fill(const uhh2::Event & ev, const int rand){
   hist("DeltaPhi_Jet1_Jet2")->Fill(deltaPhi, weight);
 
   
-  baconhep::TJet* jet3 = (baconhep::TJet*)js[2];
+ 
   if (njets>2){
   hist("pt_3")->Fill(jet3->pt, weight);
   hist("eta_3")->Fill(jet3->eta, weight);

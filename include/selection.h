@@ -26,6 +26,7 @@ class Selection {
     void SetEvent(uhh2::Event& evt);
     bool Trigger();
     bool DiJet();
+    bool DiJetAdvancedAlpha05();
     bool DiJetAdvanced();
 
     bool FullSelection();
