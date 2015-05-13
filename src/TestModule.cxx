@@ -10,6 +10,7 @@
 #include "UHH2/BaconJets/include/jet_corrections.h"
 #include "UHH2/BaconJets/include/mc_weight.h"
 
+#include "UHH2/bacondataformats/interface/TGenEventInfo.hh"
 #include "UHH2/bacondataformats/interface/TJet.hh"
 #include "UHH2/bacondataformats/interface/TEventInfo.hh"
 #include "UHH2/bacondataformats/interface/BaconAnaDefs.hh"
@@ -35,11 +36,12 @@ private:
 
   Event::Handle<TClonesArray> h_jets;
   Event::Handle<baconhep::TEventInfo> h_eventInfo;
+  Event::Handle<baconhep::TGenEventInfo> h_genInfo;
 
   std::unique_ptr<Hists> h_nocuts, h_sel, h_dijet, h_match;
   std::vector<double> eta_range, pt_range, alpha_range;
   //std::vector<JECAnalysisHists> h_eta_bins;
-  std::vector<JECAnalysisHists> h_pt_bins;
+  std::vector<JECAnalysisHists> h_pt_bins, h_eta_bins, h_noalpha_bins;
 
   Selection sel;
   JetCorrections jetcorr;
@@ -58,16 +60,16 @@ TestModule::TestModule(Context & ctx) :
   is_mc = dataset_type  == "MC";
   h_jets = ctx.declare_event_input<TClonesArray>("Jet05");
   h_eventInfo = ctx.declare_event_input<baconhep::TEventInfo>("Info");
+  //h_genInfo = ctx.declare_event_input<baconhep::TGenEventInfo>("GenEvtInfo");
 
   h_nocuts.reset(new JECAnalysisHists(ctx,"noCuts"));
   h_dijet.reset(new JECAnalysisHists(ctx,"diJet"));
   h_match.reset(new JECAnalysisHists(ctx,"JetMatching"));
   h_sel.reset(new JECAnalysisHists(ctx,"Selection"));
 
-
-  eta_range = {0, 0.261, 0.522, 0.763, 0.957, 1.131, 1.305, 1.479, 1.93, 2.322, 2.411, 2.5, 2.853, 2.964, 3.139, 3.489, 5.191};
+  eta_range = {0, 0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609, 0.696, 0.783, 0.879, 0.957, 1.044, 1.131, 1.218, 1.305, 1.392, 1.479, 1.566, 1.653, 1.830, 1.930, 2.043, 2.172, 2.322, 2.500, 2.853, 2.964, 3.139, 5.232};
   pt_range = {66, 107, 191, 240, 306, 379, 468, 900};
-  alpha_range = {0., 0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25};
+  alpha_range = {0.00, 0.10, 0.20, 0.30, 0.40};
   // int size = sizeof(eta_range)/sizeof(double); // to get size of string object
   // eta_range.size() // to get size of vector
 
@@ -90,6 +92,20 @@ TestModule::TestModule(Context & ctx) :
     alpha_range_name.push_back(alpha_buffer);
   }
   cout << "alpha range "<<alpha_range_name[3]<<"eta range "<<eta_range_name[3]<< "pt range "<<pt_range_name[3]<< endl;
+
+  for( unsigned int k=0; k < alpha_range.size()-1; ++k ){
+    for( unsigned int j=0; j < eta_range.size()-1; ++j ){
+      h_eta_bins.push_back(JECAnalysisHists(ctx,(std::string)("alpha_"+alpha_range_name[k]+"_"+alpha_range_name[k+1]+"/eta_"+eta_range_name[j]+"_"+eta_range_name[j+1])));
+    }
+  }
+
+  // alpha cut!!
+  for( unsigned int j=0; j < eta_range.size()-1; ++j ){
+    for( unsigned int i=0; i < pt_range.size()-1; ++i ){
+      h_noalpha_bins.push_back(JECAnalysisHists(ctx,(std::string)("/eta_"+eta_range_name[j]+"_"+eta_range_name[j+1]+"/pt_"+pt_range_name[i]+"_"+pt_range_name[i+1])));
+    }
+  }
+
   for( unsigned int k=0; k < alpha_range.size()-1; ++k ){
     for( unsigned int j=0; j < eta_range.size()-1; ++j ){
         for( unsigned int i=0; i < pt_range.size()-1; ++i ){
@@ -116,15 +132,28 @@ bool TestModule::process(Event & event) {
   baconhep::TJet* jet2 = (baconhep::TJet*)js[1];
   Int_t njets = js.GetEntries();
 
+  //const baconhep::TGenEventInfo & geninfo = event.get(h_genInfo);
+  //baconhep::TGenEventInfo* genInfo= new baconhep::TGenEventInfo(geninfo);
+
+
   const baconhep::TEventInfo & info = event.get(h_eventInfo);
   baconhep::TEventInfo* eventInfo= new baconhep::TEventInfo(info);
+
 
   if(is_mc){ /// apply for MC only
     // to reweight MC
 //     cout << " weight1 = "<< event.weight<<endl;
+
+    //cout << genInfo->weight << endl;
+
     event.weight = event.weight * mcweight.getPuReweighting();
+    //    event.weight = event.weight * genInfo->weight * mcweight.getPuReweighting();
+
+
+
 //     float weight = event.weight;
 //     cout << " weight2 = "<< event.weight<<endl;
+
 
   // doing the matching from GEN to RECO
     if(!jetcorr.JetMatching()) return false;
@@ -132,6 +161,8 @@ bool TestModule::process(Event & event) {
     // JER smearing
     if(!jetcorr.JetResolutionSmearer()) return false;
   }
+
+
 
   if(!sel.DiJet()) return false;
 
@@ -153,12 +184,21 @@ bool TestModule::process(Event & event) {
 
   if(!sel.goodPVertex()) return false;
 
+  
+  // cutting jets with pt<60 
+  /*for (unsigned int i=0; i<js.GetEntries(); i++){
+    baconhep::TJet* jet = (baconhep::TJet*)js[i];
+    if(jet->pt<60) return false;
+    }*/
+  
+
 
   double probejet_eta = -99.;
   double probejet_pt = -99.;
 
   int ran = rand();
   int numb = ran % 2 + 1;
+  
   if ((fabs(jet1->eta)<1.3)&&(fabs(jet2->eta)<1.3)) {
     if(numb==1){
         probejet_eta = jet2->eta;
@@ -177,29 +217,70 @@ bool TestModule::process(Event & event) {
         probejet_eta = jet1->eta;
         probejet_pt = jet1->pt;
     }
+    }
+  /*
+  if ((0.0<jet1->eta && jet1->eta<1.3)&&(0.0<jet2->eta && jet2->eta<1.3)) {
+    if(numb==1){
+        probejet_eta = jet2->eta;
+        probejet_pt = jet2->pt;
+    }
+    if(numb==2){
+        probejet_eta = jet1->eta;
+        probejet_pt = jet1->pt;
+    }
+  } else if ((0.0<jet1->eta && jet1->eta<1.3)||(0.0<jet2->eta && jet2->eta<1.3)){
+    if(0.0<jet1->eta && jet1->eta<1.3){
+        probejet_eta = jet2->eta;
+        probejet_pt = jet2->pt;
+    }
+    else{
+        probejet_eta = jet1->eta;
+        probejet_pt = jet1->pt;
+    }
   }
+  */
+
+
   double alpha = 0.;
   if (njets > 2) {
     baconhep::TJet* jet3 = (baconhep::TJet*)js[2];
         alpha = (2*(jet3->pt))/(jet1->pt + jet2->pt);
         //cout << "alpha = "<< alpha << endl;
   }
+
+
+
   //for alpha < 0.2
   for( unsigned int k=0; k < alpha_range.size()-1; ++k ){
-    if ((alpha>=alpha_range[k])&&(alpha<alpha_range[k+1])) {
-        for( unsigned int j=0; j < eta_range.size()-1; ++j ){
-            if ((fabs(probejet_eta)>=eta_range[j])&&(fabs(probejet_eta)<eta_range[j+1])) {
-                for( unsigned int i=0; i < pt_range.size()-1; ++i ){
-                    if ((probejet_pt>=pt_range[i])&&(probejet_pt<pt_range[i+1])) {
-                        h_pt_bins[k*(eta_range.size()-1)*(pt_range.size()-1)+j*(pt_range.size()-1)+i].fill(event, ran);//j*pt_range.size()+i
-                        //cout <<"eta range = "<< eta_range[j]<<" - "<< eta_range[j+1]<< "pt range = "<< pt_range[i]<<" - "<< pt_range[i+1]<<endl;
-                        //cout <<"eta value = "<< fabs(probejet_eta) << " pt value = "<< probejet_pt <<endl;
-                    }
-                }
-            }
-        }
+    if ((alpha>=alpha_range[0])&&(alpha<alpha_range[k+1])) {
+      for( unsigned int j=0; j < eta_range.size()-1; ++j ){
+	//if ((fabs(probejet_eta)>=eta_range[j])&&(fabs(probejet_eta)<eta_range[j+1])) {
+	if ((probejet_eta>=eta_range[j])&&(probejet_eta<eta_range[j+1])) {
+	  h_eta_bins[k*(eta_range.size()-1)+j].fill(event, ran);
+	  for( unsigned int i=0; i < pt_range.size()-1; ++i ){
+	    if ((probejet_pt>=pt_range[i])&&(probejet_pt<pt_range[i+1])) {
+	      h_pt_bins[k*(eta_range.size()-1)*(pt_range.size()-1)+j*(pt_range.size()-1)+i].fill(event, ran);//j*pt_range.size()+i
+	      //cout <<"eta range = "<< eta_range[j]<<" - "<< eta_range[j+1]<< "pt range = "<< pt_range[i]<<" - "<< pt_range[i+1]<<endl;
+	      //cout <<"eta value = "<< fabs(probejet_eta) << " pt value = "<< probejet_pt <<endl;
+	    }
+	  }
+	}
+      }
     }
   }
+  
+  if(alpha>0.2) return false;
+
+  for( unsigned int j=0; j < eta_range.size()-1; ++j ){
+    if ((fabs(probejet_eta)>=eta_range[j])&&(fabs(probejet_eta)<eta_range[j+1])) {
+      for( unsigned int i=0; i < pt_range.size()-1; ++i ){
+	if ((probejet_pt>=pt_range[i])&&(probejet_pt<pt_range[i+1])) {
+	  h_noalpha_bins[j*(pt_range.size()-1)+i].fill(event, ran);//j*pt_range.size()+i
+	}
+      }
+    }
+  }
+
 //   for( unsigned int i=0; i < eta_range.size()-1; ++i ){
 //     if ((fabs(probejet_eta)>=eta_range[i])&&(fabs(probejet_eta)<eta_range[i+1])) h_eta_bins[i].fill(event, ran);
 // 

@@ -1,4 +1,4 @@
-#include "UHH2/bacon/include/jet_corrections.h"
+#include "UHH2/BaconJets/include/jet_corrections.h"
 
 #include "UHH2/bacondataformats/interface/TJet.hh"
 using namespace std;
@@ -85,8 +85,8 @@ bool JetCorrections::JetResolutionSmearer()
     c = c_nominal[ieta];
     float new_pt = std::max(0.0f, genpt + c * (recopt - genpt));
 
-    if (i == 0)std::cout <<"jet corr: jet1->pt " << jet1->pt<< std::endl;
-    if (i == 0)std::cout <<"jet corr: jet->pt " << new_pt<< std::endl;
+    //if (i == 0)std::cout <<"jet corr: jet1->pt " << jet1->pt<< std::endl;
+    //if (i == 0)std::cout <<"jet corr: jet->pt " << new_pt<< std::endl;
 
     jet->pt = new_pt;
 

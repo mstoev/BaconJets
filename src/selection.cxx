@@ -130,7 +130,7 @@ bool Selection::DiJetAdvanced()
   // p_t,rel < 0.2
   if (njets>2){
     baconhep::TJet* jet3 = (baconhep::TJet*)js[2];
-    if ((2*(jet3->pt))/(jet1->pt + jet2->pt) > 0.2) return false;
+    //if ((2*(jet3->pt))/(jet1->pt + jet2->pt) > 0.2) return false;
   }
 
  return true;

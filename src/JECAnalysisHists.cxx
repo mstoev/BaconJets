@@ -107,11 +107,16 @@ void JECAnalysisHists::fill(const uhh2::Event & ev, const int rand){
     }// end loop over pt for diff. triggers
 
     double barreljet = 0.0;
+    double barreljet_eta = 0.0;
     double probejet = 0.0;
     double asymmetry = 0.0;
 
     TVector2 pt, met;
     met.Set(eventInfo->pfMET * cos(eventInfo->pfMETphi),eventInfo->pfMET * sin(eventInfo->pfMETphi));
+
+    LorentzVector ETmiss(0,0,0,0);
+    ETmiss.SetPt(eventInfo->pfMET);
+    ETmiss.SetPhi(eventInfo->pfMETphi);
 
     int numb = rand % 2 + 1;
     // barrel region |eta|<1.3
@@ -119,28 +124,32 @@ void JECAnalysisHists::fill(const uhh2::Event & ev, const int rand){
         if(numb==1){
             if(fabs(jet1->eta)<1.3){
                 barreljet += jet1->pt;
+		barreljet_eta += jet1->eta;
                 probejet += jet2->pt;
                 asymmetry += (jet2->pt - jet1->pt)/(jet2->pt + jet1->pt);
                 pt.Set(jet1->pt * cos(jet1->phi),jet1->pt * sin(jet1->phi));
-                hist("mpf")->Fill(1 + (met.Px()*pt.Px() + met.Py()*pt.Py())/(pt.Px()*pt.Px() + pt.Py()*pt.Py()), weight);
+                //hist("mpf")->Fill(1 + (met.Px()*pt.Px() + met.Py()*pt.Py())/(pt.Px()*pt.Px() + pt.Py()*pt.Py()), weight);
+		//hist("mpf")->Fill(1+(cos(ETmiss.phi()-barreljet_eta)* ETmiss.pt()/barreljet  ), weight);
                 hist("pt_barrel")->Fill(jet1->pt, weight);
                 hist("pt_probe")->Fill(jet2->pt, weight);
                 hist("asym")->Fill(((jet2->pt - jet1->pt)/(jet2->pt + jet1->pt)), weight);
-                hist("mpf")->Fill(1 + ((eventInfo->pfMET * jet1->pt)/pow(jet1->pt,2)), weight);
+                //hist("mpf")->Fill(1 + ((eventInfo->pfMET * jet1->pt)/pow(jet1->pt,2)), weight);
                 hist("r_rel")->Fill(jet2->pt / jet1->pt, weight);
 
             }
         } if(numb==2){
             if(fabs(jet2->eta)<1.3){
                 barreljet += jet2->pt;
+		barreljet_eta += jet2->eta;
                 probejet += jet1->pt;
                 asymmetry += (jet1->pt - jet2->pt)/(jet1->pt + jet2->pt);
                 pt.Set(jet2->pt * cos(jet2->phi),jet2->pt * sin(jet2->phi));
-                hist("mpf")->Fill(1 + (met.Px()*pt.Px() + met.Py()*pt.Py())/(pt.Px()*pt.Px() + pt.Py()*pt.Py()), weight);
+                //hist("mpf")->Fill(1 + (met.Px()*pt.Px() + met.Py()*pt.Py())/(pt.Px()*pt.Px() + pt.Py()*pt.Py()), weight);
+		//hist("mpf")->Fill(1+(cos(ETmiss.phi()-barreljet_eta)* ETmiss.pt()/barreljet  ), weight);
                 hist("pt_barrel")->Fill(jet2->pt, weight);
                 hist("pt_probe")->Fill(jet1->pt, weight);
                 hist("asym")->Fill(((jet1->pt - jet2->pt)/(jet1->pt + jet2->pt)), weight);
-                hist("mpf")->Fill(1 + ((eventInfo->pfMET * jet2->pt)/pow(jet2->pt,2)), weight);
+                //hist("mpf")->Fill(1 + ((eventInfo->pfMET * jet2->pt)/pow(jet2->pt,2)), weight);
                 hist("r_rel")->Fill(jet1->pt / jet2->pt, weight);
 
             }
@@ -148,30 +157,37 @@ void JECAnalysisHists::fill(const uhh2::Event & ev, const int rand){
     } else if ((fabs(jet1->eta)<1.3)||(fabs(jet2->eta)<1.3)){
         if(fabs(jet1->eta)<1.3){
             barreljet += jet1->pt;
+	    barreljet_eta += jet1->eta;
             probejet += jet2->pt;
             asymmetry += (jet2->pt - jet1->pt)/(jet2->pt + jet1->pt);
             pt.Set(jet1->pt * cos(jet1->phi),jet1->pt * sin(jet1->phi));
-            hist("mpf")->Fill(1 + (met.Px()*pt.Px() + met.Py()*pt.Py())/(pt.Px()*pt.Px() + pt.Py()*pt.Py()), weight);
+            //hist("mpf")->Fill(1 + (met.Px()*pt.Px() + met.Py()*pt.Py())/(pt.Px()*pt.Px() + pt.Py()*pt.Py()), weight);
+	    //hist("mpf")->Fill(1+(cos(ETmiss.phi()-barreljet_eta)* ETmiss.pt()/barreljet  ), weight);
             hist("pt_barrel")->Fill(jet1->pt, weight);
             hist("pt_probe")->Fill(jet2->pt, weight);
             hist("asym")->Fill(((jet2->pt - jet1->pt)/(jet2->pt + jet1->pt)), weight);
-            hist("mpf")->Fill(1 + ((eventInfo->pfMET * jet1->pt)/pow(jet1->pt,2)), weight);
+            //hist("mpf")->Fill(1 + ((eventInfo->pfMET * jet1->pt)/pow(jet1->pt,2)), weight);
             hist("r_rel")->Fill(jet2->pt / jet1->pt, weight);
 
         } if(fabs(jet2->eta)<1.3){
             barreljet += jet2->pt;
+	    barreljet_eta += jet2->eta;
             probejet += jet1->pt;
             asymmetry += (jet1->pt - jet2->pt)/(jet1->pt + jet2->pt);
             pt.Set(jet2->pt * cos(jet2->phi),jet2->pt * sin(jet2->phi));
-            hist("mpf")->Fill(1 + (met.Px()*pt.Px() + met.Py()*pt.Py())/(pt.Px()*pt.Px() + pt.Py()*pt.Py()), weight);
+            //hist("mpf")->Fill(1 + (met.Px()*pt.Px() + met.Py()*pt.Py())/(pt.Px()*pt.Px() + pt.Py()*pt.Py()), weight);
+	    //hist("mpf")->Fill(1+(cos(ETmiss.phi()-barreljet_eta)* ETmiss.pt()/barreljet  ), weight);
             hist("pt_barrel")->Fill(jet2->pt, weight);
             hist("pt_probe")->Fill(jet1->pt, weight);
             hist("asym")->Fill(((jet1->pt - jet2->pt)/(jet1->pt + jet2->pt)), weight);
-            hist("mpf")->Fill(1 + ((eventInfo->pfMET * jet2->pt)/pow(jet2->pt,2)), weight);
+            //hist("mpf")->Fill(1 + ((eventInfo->pfMET * jet2->pt)/pow(jet2->pt,2)), weight);
             hist("r_rel")->Fill(jet1->pt / jet2->pt, weight);
 
         }
     }
+
+    hist("mpf")->Fill(1+(cos(ETmiss.phi()-barreljet_eta)* ETmiss.pt()/barreljet  ), weight);
+
 
 
     if(fabs(jet1->eta)<1.3){

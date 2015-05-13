@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd"[
           <!ENTITY QCD_Pt300to470 SYSTEM "/nfs/dust/cms/user/mstoev/SFrame7/SFrameAnalysis/config/Bacon/QCD_Pt300to470.xml">
+	  <!ENTITY QCDPt15to3000_8tev SYSTEM "../datasets/QCDPt15to3000PU_RD1.xml">
+	  <!ENTITY QCDPt15to3000weight_8tev SYSTEM "../datasets/QCDPt15to3000PU_RD1_Weight.xml">
+	  <!ENTITY QCDPt15to3000_2012data SYSTEM "../datasets/QCDPt15to3000PU_2012DATA.xml">
 ]>
 
 <!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
@@ -8,21 +11,46 @@
     <Library Name="libSUHH2BaconJets"/>
     <Package Name="SUHH2BaconJets.par" />
 
-    <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/kovalch/sFrame/JEC/" PostFix="_test_new" TargetLumi="1" >
-   <!-- <Cycle Name="uhh2::AnalysisModuleRunner"  RunMode="PROOF" ProofServer="lite://"  ProofWorkDir="/nfs/dust/cms/user/ottjoc/proof-wd/" ProofNodes="2" OutputDirectory="./" PostFix="" TargetLumi="1" >  -->
+<!--    <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/mstoev/sFrame_new/JEC/output/" PostFix="_test123" TargetLumi="1" > -->
+<Cycle Name="uhh2::AnalysisModuleRunner"  RunMode="PROOF" ProofServer="lite://"  ProofWorkDir="/nfs/dust/cms/user/mstoev/PROOF/" ProofNodes="2" OutputDirectory="/nfs/dust/cms/user/mstoev/sFrame_new/JEC/output/" PostFix="_test1234" TargetLumi="1" >  
 
         <!--     to run on all samples -->
-<!--        <InputData Lumi="1" NEventsMax="-1" Type="MC" Version="QCD_Pt300to470" Cacheable="True">
+<!--
+        <InputData Lumi="1" NEventsMax="10000" Type="MC" Version="QCD_Pt300to470" Cacheable="True">
             &QCD_Pt300to470;
             <InputTree Name="Events" />
-        </InputData> -->
+        </InputData>-->
         <!--<OutputTree Name="AnalysisTree" />-->
 
+
+        <InputData Lumi="0.0002656" NEventsMax="-1" Type="MC" Version="QCDPt15to3000_8tev" Cacheable="True">
+            &QCDPt15to3000_8tev;
+            <InputTree Name="Events" />
+        </InputData> 
+
+<!--
+        <InputData Lumi="1" NEventsMax="100000" Type="MC" Version="QCDPt15to3000weight_8tev" Cacheable="True">
+            &QCDPt15to3000weight_8tev;
+            <InputTree Name="Events" />
+        </InputData> 
+-->
+
+
+        <InputData Lumi="1.0" NEventsMax="-1" Type="DATA" Version="DATA" Cacheable="True">
+            &QCDPt15to3000_2012data;
+            <InputTree Name="Events" />
+        </InputData> 
+
+
+
+
         <!--    to run on one sample-->
+<!--
         <InputData Lumi="1" NEventsMax="100000" Type="MC" Version="QCD_Pt300to470" Cacheable="False">
             <In FileName="/pnfs/desy.de/cms/tier2/store/user/nkovalch/BaconTree_MC_DiPF/pythia8_QCD_Pt300to470_Tune4C_13TeV_pythia8_12.root" Lumi="0.0"/> 
             <InputTree Name="Events" /> 
         </InputData>
+-->
 
         <UserConfig>
             <!-- tell AnalysisModuleRunner that we use a completely user-defined event format -->
