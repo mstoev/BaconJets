@@ -1,8 +1,8 @@
-#include "UHH2/bacon/include/selection.h"
+#include "UHH2/BaconJets/include/selection.h"
 
 #include "UHH2/bacondataformats/interface/TJet.hh"
 #include "UHH2/bacondataformats/interface/TVertex.hh"
-#include "UHH2/bacon/include/constants.h"
+#include "UHH2/BaconJets/include/constants.h"
 
 #include "TVector2.h"
 
@@ -79,7 +79,7 @@ bool Selection::Trigger()
     if (avePt >= s_Pt_Ave40_cut  && avePt < s_Pt_Ave60_cut  && trigger40fired) return true;
     if (avePt >= s_Pt_Ave60_cut  && avePt < s_Pt_Ave80_cut  && trigger60fired) return true;
     if (avePt >= s_Pt_Ave80_cut  && avePt < s_Pt_Ave140_cut && trigger80fired) return true;
-    if (avePt >= s_Pt_Ave140_cut && avePt < s_Pt_Ave200_cut && trigger140fired) return true;
+    if (avePt >= s_Pt_Ave140_cut && avePt < s_Pt_Ave200_cut /*&& trigger140fired*/) return true;
     if (avePt >= s_Pt_Ave200_cut && avePt < s_Pt_Ave260_cut && trigger200fired) return true;
     if (avePt >= s_Pt_Ave260_cut && avePt < s_Pt_Ave320_cut && trigger260fired) return true;
     if (avePt >= s_Pt_Ave320_cut && avePt < s_Pt_Ave400_cut && trigger320fired) return true;

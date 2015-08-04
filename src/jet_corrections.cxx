@@ -1,7 +1,7 @@
-#include "UHH2/bacon/include/jet_corrections.h"
+#include "UHH2/BaconJets/include/jet_corrections.h"
 
 #include "UHH2/bacondataformats/interface/TJet.hh"
-#include "UHH2/bacon/include/constants.h"
+#include "UHH2/BaconJets/include/constants.h"
 using namespace std;
 namespace uhh2bacon {
 

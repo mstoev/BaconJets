@@ -1,5 +1,5 @@
 #include "UHH2/BaconJets/include/JECAnalysisHists.h"
-#include "UHH2/bacon/include/constants.h"
+#include "UHH2/BaconJets/include/constants.h"
 #include "UHH2/core/include/Event.h"
 #include "UHH2/core/include/Jet.h"
 
@@ -76,7 +76,7 @@ JECAnalysisHists::JECAnalysisHists(Context & ctx, const string & dirname): Hists
     book<TH1F>("pt_ave_hltDiPFJetAve400","p_{T} ave400 jet; p_{T}^{ave} (GeV)",120,0,600);
     book<TH1F>("pt_ave_hltDiPFJetAve500","p_{T} ave500 jet; p_{T}^{ave} (GeV)",120,0,600);
 
-    book<TH2F>("Rrel_vs_Npv","Rrel vs. Npv ", 50, 0, 50 ,100, 0.5,1.5);
+    book<TH2F>("Rrel_vs_Npv","Rrel vs. Npv ", 40, 0, 40 ,100, 0.1,3.5);
 //     book<TProfile>("prof_Rrel_vs_Npv","Rrel vs. Npv ", 50, 0, 50 ,100, 0.5,1.5);
 //     TProfile * prof_Rrel_vs_Npv  = new TProfile("prof_Rrel_vs_Npv","Rrel vs. Npv",100, 0, 50, 0.5, 1.5);
 
@@ -189,6 +189,7 @@ void JECAnalysisHists::fill(const uhh2::Event & ev, const int rand){
         hist("generic_mpf")->Fill(1 + (met.Px()*pt.Px() + met.Py()*pt.Py())/(pt.Px()*pt.Px() + pt.Py()*pt.Py()), weight);
         hist("generic_r_rel")->Fill(jet2->pt / jet1->pt, weight);
         hist("Rrel_vs_Npv")->Fill(nvertices,jet2->pt / jet1->pt);
+
 //         hist("prof_Rrel_vs_Npv")->Fill(nvertices,jet2->pt / jet1->pt);
 
     }
