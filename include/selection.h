@@ -26,9 +26,9 @@ class Selection {
     ~Selection();
 
     void SetEvent(uhh2::Event& evt);
-    bool Trigger();
+    bool Trigger(uhh2::Event& evt);
     bool DiJet();
-    bool DiJetAdvanced();
+    bool DiJetAdvanced(uhh2::Event& evt);
     bool goodPVertex();
     bool triggerFired(float bin1, float bin2);
 

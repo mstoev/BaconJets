@@ -15,8 +15,8 @@
 #include<TVector3.h>
 #include <vector>
 
-#include "UHH2/bacon/include/data_corrections.h"
-#include "UHH2/bacon/include/constants.h"
+#include "UHH2/BaconJets/include/data_corrections.h"
+#include "UHH2/BaconJets/include/constants.h"
 #include "UHH2/bacondataformats/interface/TJet.hh"
 using namespace std;
 
@@ -34,7 +34,7 @@ DataCorr::DataCorr(uhh2::Context & ctx) :
     event(0)
 {
     // open the file
-    TString fullname = "Summer15_50nsV2_DATA_L1FastJet_AK4PFchs.txt";
+    TString fullname = "/nfs/dust/cms/user/mstoev/CMSSW_7_2_1_patch4/src/UHH2/BaconJets/conf/Summer15_50nsV2_DATA_L1FastJet_AK4PFchs.txt";
     ifstream file(fullname);
     if (file.good()) {
         cout << "INFO: opened " << fullname << endl;

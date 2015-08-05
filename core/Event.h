@@ -25,6 +25,14 @@ public:
   float barreljet_pt;
   float barreljet_ptRaw;
 
+  float jet1_pt;
+  float jet2_pt;
+  float jet3_pt;
+
+  float jet1_ptRaw;
+  float jet2_ptRaw;
+  float jet3_ptRaw;
+
   float pt_ave;
   float alpha;
   float rel_r;

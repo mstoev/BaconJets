@@ -6,9 +6,11 @@
 // static std::vector<double>   pt_range   = {66, 107, 191, 240, 306, 379, 468, 900};
 // static std::vector<double>   alpha_range= {0., 0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25};
 
-static std::vector<double>   eta_range  = {0, 1.3, 2.5, 3.0, 5.0};
-static std::vector<double>   pt_range   = {55, 76, 93, 172, 232, 300, 366, 453, 558};
-// static std::vector<double>   pt_range   = {43, 80, 88, 135, 223, 290, 365, 448, 561};
+
+static std::vector<double>   eta_range  = {0, 0.25, 0.5, 0.75, 1.0, 1.3, 1.6, 1.9, 2.2, 2.5, 2.7, 3.0, 3.2, 5.0};//{0, 1.3, 2.5, 3.0, 5.0};
+static std::vector<double>   eta_range_mikko_barrel = {0, 0.8, 1.3};
+//static std::vector<double>   pt_range   = {55, 76, 93, 172, 232, 300, 366, 453, 558};
+static std::vector<double>   pt_range   = {43, 80, 88, 135, 223, 290, 365, 448, 561};
 // static std::vector<double>   pt_range   = {57, 80, 100, 166, 231, 290, 365, 478, 556};
 
 static std::vector<double>   alpha_range= {0., 0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25};
@@ -21,7 +23,7 @@ static float s_delta_phi = 2.7;
 // cut on the asymmetry for events with two jets  |(j2->pt - j1->pt /(j2->pt + j1->pt)| < 0.70
 static float s_asymm = 0.7;
 // relative third jet fraction pt_rel = 2*j3_pt/(j1_pt + j2_pt) < 0.2
-static float s_pt_rel = 0.2;
+static float s_pt_rel = 0.4;
 
 /** \brief good Primary Vertex reconstruction **/
 // more than four tracks

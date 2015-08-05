@@ -12,8 +12,8 @@
 #include<TVector3.h>
 #include <vector>
 
-#include "UHH2/bacon/include/mc_weight.h"
-#include "UHH2/bacon/include/constants.h"
+#include "UHH2/BaconJets/include/mc_weight.h"
+#include "UHH2/BaconJets/include/constants.h"
 #include "UHH2/bacondataformats/interface/TJet.hh"
 using namespace std;
 

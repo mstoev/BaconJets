@@ -14,8 +14,8 @@
 #include<TVector3.h>
 #include <vector>
 
-#include "UHH2/bacon/include/pileup_data.h"
-#include "UHH2/bacon/include/constants.h"
+#include "UHH2/BaconJets/include/pileup_data.h"
+#include "UHH2/BaconJets/include/constants.h"
 #include "UHH2/bacondataformats/interface/TJet.hh"
 using namespace std;
 
